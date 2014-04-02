@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>MonetDB JS Client</title>
+
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link href="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-color/2.1.2/jquery.color.min.js"></script>
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/d3/3.3.13/d3.min.js"></script>
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.0.3/js/bootstrap.min.js"></script>
+
+	<style>
+	#query {
+		  font-family: 'Lucida Console', 'Bitstream Vera Sans Mono', 'Courier New', Monaco, Courier, monospace;
+	}
+	</style>
+
+</head>
+<body>
+
+	<div class="page-header">
+		<h1>MonetDB JS Client</h1>
+	</div>
+
+	<div class="container">
+
+		<div class="row">
+			<div class="span12 form-group">
+				<div class="col-sm-10">
+					<!-- query to go here -->
+					<textarea id="query" placeholder="Robert'); DROP TABLE Students;--" class="form-control" rows="3">select * from voyages limit 10;</textarea>
+				</div>
+				<div class="col-sm-2">
+					<button id="go" type="submit" class="btn btn-primary btn-lg">Go!</button>
+				</div>
+			</div>
+		</div>
+
+		<div class="row" style="display:none" id="errormsg">
+			<div class="span12">
+				<div class="alert alert-warning alert-dismissable">
+					<strong>Error!</strong> Something went wrong, server says: 
+					<span></span>
+				</div>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="span12">
+				<table id="result" class="table table-striped span12">
+				</table>
+		</div>
+	</div>	
+<script>
+
+$('#go').click(function(){
+	var q = $('#query').val();
+
+	$.ajax({
+	    url: 'http://bristol.ins.cwi.nl:5050/mdbpxy.php?callback=asdf',
+	    data: {q:q},
+	    async: false,
+	    dataType: 'jsonp',
+	    success: function(json) {
+	    	var hdr = json.metadata.fields;
+	       $('#result').empty().append('<thead><tr><th>' + hdr.join('</th><th>') + '</th></tr></thead><tbody>' + $.map(json.results, function(val) {
+				return '<tr><td>' +  $.map(hdr, function(el) { if(!val[el]) return ""; else return val[el];}).join('</td><td>') + '</td></tr>';
+			}) + '</tbody>');
+	    },
+	    error: function(e,txt) {
+	    	// TODO: display
+	       console.log(txt);
+	    }
+	});
+
+});
+</script>
+
+</body>
+</html>
