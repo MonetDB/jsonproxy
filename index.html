@@ -59,7 +59,7 @@ $('#go').click(function(){
 	var q = $('#query').val();
 
 	$.ajax({
-	    url: 'http://bristol.ins.cwi.nl:5050/mdbpxy.php?callback=asdf',
+	    url: 'http://localhost:5050/mdbpxy.php',
 	    data: {q:q},
 	    async: false,
 	    dataType: 'jsonp',

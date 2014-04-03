@@ -2,11 +2,11 @@
 // create user "phproxy" with password 'phproxy' name 'phproxy' schema "sys";
 // grant select on voyages to phproxy;
 
-define("monetdb_host","bristol.ins.cwi.nl");
-define("monetdb_port","50000");
+define("monetdb_host","localhost");
+define("monetdb_port","50001");
 define("monetdb_user","phproxy");
 define("monetdb_pass","phproxy");
-define("monetdb_dbnm","voc");
+define("monetdb_dbnm","clueweb-segment0");
 
 // inlining php_mapi.inc
 /**
@@ -1361,27 +1361,30 @@ define("monetdb_dbnm","voc");
 	}
 
 
+function err($code,$str) {
+	http_response_code($code);
+	header("Content-Type: text/plain");
+	die($str."\r\n");
+}
+
 // you should not have to change stuff below.
 // require 'phplib/php_monetdb.php';
 $db = monetdb_connect("sql",monetdb_host,monetdb_port,monetdb_user,monetdb_pass,monetdb_dbnm);
 if (!$db) {
-	http_response_code(500);
-	die("Could not connect to database: ".monetdb_last_error());
+	err(400,"Could not connect to database: ".monetdb_last_error());
 }
 
 $query = $_REQUEST['q'];
 // check if the query is at least there
 if (trim($query) == "") {
-	http_response_code(400);
-	die("Missing query GET/POST parameter (?q=SELECT...)");
+	err(400,"Missing query GET/POST parameter (?q=SELECT...)");
 }
 
 if (isset($_REQUEST["callback"]) && !empty($_REQUEST["callback"])) {
 	$hasJsonp = true;
 	$jsonp = $_REQUEST["callback"];
 	if (!ereg("^[[:alnum:]_]+$",$jsonp)) {
-		http_response_code(400);
-		die("Invalid callback request parameter");
+		err(400,"Invalid callback request parameter");
 	}
 }
 
@@ -1389,8 +1392,7 @@ if (isset($_REQUEST["callback"]) && !empty($_REQUEST["callback"])) {
 $res = monetdb_query($db, monetdb_escape_string($query));
 
 if (!$res) {
-	http_response_code(400);
-	die("Invalid query: ".monetdb_last_error());
+	err(400,"Invalid query: ".monetdb_last_error());
 }
 
 // construct result emtadata
